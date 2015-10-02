@@ -23,6 +23,7 @@ or use the provided Makefile (simply run `make`).
 
 ## Usage 
 nggSpamFilter accepts two parameters: 
+
 1. a directory containing the training set,
 consisting of spam and ham (non-spam) files in .txt format (`trainDirectory`)
 2. a directory containing the test set (`testDirectory`)

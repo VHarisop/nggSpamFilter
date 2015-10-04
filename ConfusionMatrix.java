@@ -1,22 +1,4 @@
-/*
-This file is part of nggSpamFilter.
-
-nggSpamFilter is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-nggSpamFilter is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with nggSpamFilter.  If not, see <http://www.gnu.org/licenses/>.
-
-Copyright (C) Vasileios Charisopoulos, 2015
-
-*/
+package ngg.filter;
 
 /**
  * Represents the confusion matrix for a classification problem 
@@ -59,7 +41,6 @@ public class ConfusionMatrix {
 	 * @param seq a one-dimensional integer sequence (i.e. a flattened conf. matrix) 
 	 */
 	public void setMatrix(int[] seq) throws AssertionError {
-		/* TODO: Complete the code */ 
 		assert(seq.length == (numClasses * numClasses));
 		int row, column;
 		
@@ -126,6 +107,15 @@ public class ConfusionMatrix {
 		}
 		
 		return (double) hits / (total);
+	}
+	
+	/**
+	 * Returns the misclassification rate extracted
+	 * from the confusion matrix 
+	 * @return the misclassification rate
+	 */
+	public double missRate() {
+		return (1 - accuracy());
 	}
 	
 	/**

@@ -1,3 +1,4 @@
 *.grph
-*.jar
+OpenJGraph.jar
+JInsect.jar
 *.class

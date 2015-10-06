@@ -37,8 +37,14 @@ public class Modeller {
 	private DocumentNGramGraph[] distroGraphs;
 	private DocumentNGramGraph modelGraph;
 	
-	private boolean useThreads = true;
+	private static boolean useThreads = true;
 
+	/**
+	 * Static setter to set threading active or not 
+	 */
+	public static void setThreading(boolean setting) {
+		useThreads = setting;
+	}
 
 	/**
 	 * Creates an instance of Modeller from a given directory

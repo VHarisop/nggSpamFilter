@@ -12,7 +12,7 @@ public class Main {
 		 * and perform classification on all categories
 		 */
 		NggClassifier nggc = new NggClassifier(args[0]);
-		ConfusionMatrix cnf = nggc.classify_all_categories();
+ 		ConfusionMatrix cnf = nggc.classify_all_categories();
 
 		/* print the classification results
 		 * for every class (precision & recall)
@@ -20,6 +20,9 @@ public class Main {
 		String[] labels = nggc.getLabels();
 		System.out.println(labels[0] + " " + Arrays.toString(cnf.precisionAndRecall(0)));
 		System.out.println(labels[1] + " " + Arrays.toString(cnf.precisionAndRecall(1)));
+		
+		// export the features as LibSVM-compatible files 
+		// nggc.exportSvmFeatures();
 	}
 
 }

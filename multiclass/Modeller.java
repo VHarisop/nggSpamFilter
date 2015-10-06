@@ -171,5 +171,45 @@ public class Modeller {
 	public DocumentNGramGraph getModel() {
 		return modelGraph;
 	}
+
+
+	/**
+	 * Extract a set of DocumentNGramGraphs for a 
+	 * given directory of documents 
+	 * @param baseDir the root of the document directory
+	 * @return an array of nggs, one for each document
+	 */
+	public static DocumentNGramGraph[] extractGraphs(String baseDir) {
+
+		// extract all filenames into a list
+		String[] fileList = (new File(baseDir)).list(new FilenameFilter() {
+			public boolean accept(File dirPath, String fileName) {
+				return fileName.endsWith(".txt");
+			}
+		});
+
+		// allocate an array of nggs
+		DocumentNGramGraph[] nggs = new DocumentNGramGraph[fileList.length];
+		for (int i = 0; i < fileList.length; i++) {
+			nggs[i] = new DocumentNGramGraph();
+
+			try {
+				nggs[i].loadDataStringFromFile(baseDir + "/" + fileList[i]);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		} 
+
+		return nggs;
+	}
+
+	/**
+	 * Simple getter for accessing the full array of 
+	 * document graphs
+	 * @return the array of graphs for all documents
+	 */
+	public DocumentNGramGraph[] getGraphs() {
+		return distroGraphs;
+	}
 	
 }

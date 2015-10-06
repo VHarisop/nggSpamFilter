@@ -24,11 +24,15 @@ import gr.demokritos.iit.jinsect.documentModel.representations.*;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 
 import dataset.Pair;
 import dataset.ConfusionMatrix;
 
 import java.util.Arrays;
+
+
 /**
  * A simple Java class that performs k-ary classification 
  * tasks using folded (i.e. n-fold validation) data sets.
@@ -36,7 +40,7 @@ import java.util.Arrays;
  * @author VHarisop
  * 
  * Examples:
- * 		String baseDir = args[0]
+ * 		String baseDir = args[0];
  * 
  * 		// create new classifier with 10-fold cross validation
  * 		ConfusionMatrix cnf = new NggClassifier(baseDir);
@@ -125,7 +129,6 @@ public class NggClassifier {
 		
 		// initialize a graph comparator
 		ngc = new NGramCachedGraphComparator();
-		
 	}
 	
 	/**
@@ -148,6 +151,80 @@ public class NggClassifier {
 	 */
 	public String[] getLabels() {
 		return classLabels;
+	}
+
+
+	/**
+	 * Compute a set of SVM features 
+	 * for both the training and the testing 
+	 * sets and output them to files.
+	 */
+	public void exportSvmFeatures() {
+
+		PrintStream stdout = System.out;
+		exportSvmFeatures(true);
+		exportSvmFeatures(false);
+
+		// restore original stdout
+		System.setOut(stdout);
+
+
+	}
+
+	/**
+	 * Compute a set of SVM features for a dataset
+	 * and print them to stdout
+	 * @param type a boolean denoting if we should use the
+	 * training set or the test set
+	 */
+	private void exportSvmFeatures(boolean type) {
+	
+		/* TODO: make this code more concise */
+
+		String ext = "/Test";
+		String name = "svmtest.txt";
+		if (type) { 
+			ext = "/Train";
+			name = "svmtrain.txt"; 
+		}		
+
+		// try to redirect output
+		try {
+			FileOutputStream f = new FileOutputStream(name);
+			System.setOut(new PrintStream(f));
+		} 
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+
+
+		for (int i = 0; i < dataDirs.length; i++) {
+			// get a set of document nggs for the train set
+			DocumentNGramGraph[] nggs = 
+				Modeller.extractGraphs(dataDirs[i].getAbsolutePath() + ext);
+
+			// double[][] valueSims = new double[nggs.length][models.length];
+			for (int j = 0; j < nggs.length; j++) {
+		
+				// output class label first
+				System.out.print(i + " ");
+				// compute vector against all models
+				for (int k = 0; k < models.length; k++) {
+
+					// compute a vector of value similarities,
+					// one value for each model, one vector for
+					// each document
+					// valueSims[j][k] = computeSimilarity(nggs[j], k);
+
+					double valueSim = computeSimilarity(nggs[j], k);
+					// k + 1 because feature indexing starts from 1 in LibSVM
+					System.out.printf("%d:%f ", k + 1, valueSim);
+				}
+				
+				System.out.println();
+			}
+		}
 	}
 	
 	/**

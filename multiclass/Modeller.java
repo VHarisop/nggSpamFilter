@@ -36,6 +36,9 @@ public class Modeller {
 	private String[] filenameList;
 	private DocumentNGramGraph[] distroGraphs;
 	private DocumentNGramGraph modelGraph;
+	
+	private boolean useThreads = true;
+
 
 	/**
 	 * Creates an instance of Modeller from a given directory
@@ -52,9 +55,14 @@ public class Modeller {
 			}
 		});
 		
-		// initGraphs(dirPath);
-		initGraphsThreaded(dirPath);
-		updateGraphs();
+		if (useThreads) {
+			initGraphsThreaded(dirPath);
+			updateGraphsThreaded();
+		}
+		else {
+			initGraphs(dirPath);
+			updateGraphs(); 
+		}
 	}
 	
 	/** 
@@ -148,7 +156,7 @@ public class Modeller {
 		distroGraphs = new DocumentNGramGraph[filenameList.length];
 
 		final int numThreads = 8;
-		final int sz = distroGraphs.length / numThreads;
+		final int sz = (distroGraphs.length / numThreads) + 1;
 		final String dirp = dirPath;
 		Thread[] tids = new Thread[8];
 
@@ -203,6 +211,55 @@ public class Modeller {
 			lr = 1 - (index / (double)(index + 1));
 			
 			modelGraph.mergeGraph(distroGraphs[index], lr);
+		}
+	}
+
+	private void updateGraphsThreaded() {
+		
+		final int numThreads = 8;
+		final int sz = (distroGraphs.length / numThreads) + 1;
+		final DocumentNGramGraph[] mdls = new DocumentNGramGraph[numThreads];
+
+		Thread[] tids = new Thread[numThreads];
+
+		for (int i = 0; i < numThreads; ++i) {
+			tids[i] = new Thread("Thread-" + i) {
+				public void run() {
+					int tid = (int) Thread.currentThread().getId() % numThreads;
+					int startInd = tid * sz;
+					int endInd = (tid + 1) * sz;
+					// get max(myend, nggs.length)
+					endInd = (endInd > distroGraphs.length) ? distroGraphs.length : endInd; 
+					
+					double lr = 0.5;
+					mdls[tid] = distroGraphs[startInd];
+
+					// merge intermediate model graphs
+					for (int j = startInd + 1; j < endInd; j++) {
+						mdls[tid].mergeGraph(distroGraphs[j], lr);
+						lr = 1 - (j / (double)(j + 1));
+					}
+
+					System.out.printf("Thread %d finished merging: %d-%d\n", tid, startInd, endInd);
+				}
+			};
+			tids[i].start();
+		}
+
+		// wait for all threads to finish
+		for (int i = 0; i < numThreads; ++i) {
+			try {
+				tids[i].join();
+			}
+			catch (InterruptedException ex) { ex.printStackTrace(); }
+		}
+
+		// merge all intermediate models as well 
+		modelGraph = mdls[0]; 
+		double lr = 0.5;
+		for (int i = 1; i < numThreads; ++i) {
+			modelGraph.mergeGraph(mdls[i], lr);
+			lr = 1 - (i / (double)(i + 1));
 		}
 	}
 	

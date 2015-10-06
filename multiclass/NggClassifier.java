@@ -48,6 +48,7 @@ import java.util.Arrays;
  */
 public class NggClassifier {
 
+	private boolean usesValidation = false;
 	private String[] classLabels;
 	private File[] dataDirs; 		// directories for data
 	private DataSplitter[] dtsp;	// data splitters for each category
@@ -71,6 +72,9 @@ public class NggClassifier {
 		// save the data directories and the order of folding
 		this.dataDirs = dataDirs;
 		this.order = order;
+
+		// enable validation-related methods
+		usesValidation = true;
 		
 		// allocate data splitter array
 		dtsp = new DataSplitter[dataDirs.length];
@@ -109,6 +113,12 @@ public class NggClassifier {
 	}
 	
 	public NggClassifier(String baseDir, int order) {
+
+		this.order = order;
+
+		// enable validation-related methods
+		usesValidation = true;
+
 		File dir = new File(baseDir);
 		dataDirs = dir.listFiles(new FilenameFilter() {
 			@Override
@@ -117,6 +127,8 @@ public class NggClassifier {
 			}
 		});
 		
+		System.out.println(dataDirs.length);
+
 		initLabels(dir);
 		
 		// allocate data splitter array
@@ -133,7 +145,7 @@ public class NggClassifier {
 	
 	/**
 	 * Initialize the class labels of the dataset
-	 * @param dir the rott directory of the dataset
+	 * @param dir the root directory of the dataset
 	 */
 	private void initLabels(File dir) {
 		
@@ -162,8 +174,8 @@ public class NggClassifier {
 	public void exportSvmFeatures() {
 
 		PrintStream stdout = System.out;
-		exportSvmFeatures(true);
-		exportSvmFeatures(false);
+		exportSvmFeatures(true);  	// training set
+		exportSvmFeatures(false); 	// test set
 
 		// restore original stdout
 		System.setOut(stdout);
@@ -198,9 +210,9 @@ public class NggClassifier {
 		}
 
 
-
 		for (int i = 0; i < dataDirs.length; i++) {
-			// get a set of document nggs for the train set
+			// get a set of document nggs for the set
+			// iterate(i) for each category
 			DocumentNGramGraph[] nggs = 
 				Modeller.extractGraphs(dataDirs[i].getAbsolutePath() + ext);
 
@@ -209,15 +221,14 @@ public class NggClassifier {
 		
 				// output class label first
 				System.out.print(i + " ");
-				// compute vector against all models
 				for (int k = 0; k < models.length; k++) {
 
 					// compute a vector of value similarities,
-					// one value for each model, one vector for
-					// each document
+					// one value for each model(k), one vector for
+					// each document(j)
 					// valueSims[j][k] = computeSimilarity(nggs[j], k);
-
 					double valueSim = computeSimilarity(nggs[j], k);
+
 					// k + 1 because feature indexing starts from 1 in LibSVM
 					System.out.printf("%d:%f ", k + 1, valueSim);
 				}
@@ -234,6 +245,10 @@ public class NggClassifier {
 	 */
 	public ConfusionMatrix classify(int n) {
 		
+		if (!usesValidation) {
+			throw new UnsupportedOperationException("No folding order specified");
+		}
+
 		createModels(n);
 		// return the resulting confusion matrix
 		return classify_all_categories(n);
@@ -251,6 +266,21 @@ public class NggClassifier {
 			matrices[i] = classify(i);
 		}
 		return matrices;
+	}
+
+	/**
+	 * Perform n-fold validation by running classification
+	 * on the n disjoint test sets resulting from the data split
+	 * @return the average accuracy calculated
+	 */
+	public double cross_validate() {
+		
+		double accSum = 0;
+		for (int i = 0; i < order; ++i) {
+			accSum += classify(i).accuracy();
+		}
+		
+		return accSum / order;
 	}
 	
 	

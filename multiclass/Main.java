@@ -11,15 +11,19 @@ public class Main {
 		/* create a multiclass classifier on base directory 
 		 * and perform classification on all categories
 		 */
-		NggClassifier nggc = new NggClassifier(args[0]);
- 		ConfusionMatrix cnf = nggc.classify_all_categories();
+		NggClassifier nggc = new NggClassifier(args[0], 3);
+ 		// ConfusionMatrix cnf = nggc.classify(4);
+		// System.out.println(cnf.accuracy());
 
+		double accVal = nggc.cross_validate();
+		System.out.printf("Cross validation score: %f\n", accVal);
+		
 		/* print the classification results
 		 * for every class (precision & recall)
 		 */
-		String[] labels = nggc.getLabels();
-		System.out.println(labels[0] + " " + Arrays.toString(cnf.precisionAndRecall(0)));
-		System.out.println(labels[1] + " " + Arrays.toString(cnf.precisionAndRecall(1)));
+		// String[] labels = nggc.getLabels();
+		// System.out.println(labels[0] + " " + Arrays.toString(cnf.precisionAndRecall(0)));
+		// System.out.println(labels[1] + " " + Arrays.toString(cnf.precisionAndRecall(1)));
 		
 		// export the features as LibSVM-compatible files 
 		// nggc.exportSvmFeatures();

@@ -11,12 +11,12 @@ public class Main {
 		/* create a multiclass classifier on base directory 
 		 * and perform classification on all categories
 		 */
-		NggClassifier nggc = new NggClassifier(args[0], 3);
- 		// ConfusionMatrix cnf = nggc.classify(4);
-		// System.out.println(cnf.accuracy());
+		NggClassifier nggc = new NggClassifier(args[0]);
+ 		ConfusionMatrix cnf = nggc.classify_all_categories();
+		System.out.println(cnf.accuracy());
 
-		double accVal = nggc.cross_validate();
-		System.out.printf("Cross validation score: %f\n", accVal);
+		// double accVal = nggc.cross_validate();
+		// System.out.printf("Cross validation score: %f\n", accVal);
 		
 		/* print the classification results
 		 * for every class (precision & recall)

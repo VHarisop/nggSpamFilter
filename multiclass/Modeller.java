@@ -52,8 +52,8 @@ public class Modeller {
 			}
 		});
 		
-		
-		initGraphs(dirPath);
+		// initGraphs(dirPath);
+		initGraphsThreaded(dirPath);
 		updateGraphs();
 	}
 	
@@ -143,6 +143,48 @@ public class Modeller {
 		}
 		System.out.println("Done!");
 	}
+
+	private void initGraphsThreaded(String dirPath) {
+		distroGraphs = new DocumentNGramGraph[filenameList.length];
+
+		final int numThreads = 8;
+		final int sz = distroGraphs.length / numThreads;
+		final String dirp = dirPath;
+		Thread[] tids = new Thread[8];
+
+		for (int i = 0; i < numThreads; ++i) {
+			tids[i] = new Thread("Thread-" + i) {
+				public void run() {
+					int tid = (int) Thread.currentThread().getId() % numThreads;
+					int startInd = tid * sz;
+					int endInd = (tid + 1) * sz;
+					// get max(myend, nggs.length)
+					endInd = (endInd > distroGraphs.length) ? distroGraphs.length : endInd; 
+					
+					for (int j = startInd; j < endInd; j++) {
+						try {   
+							String filename = dirp + "/" + filenameList[j];
+							distroGraphs[j] = new DocumentNGramGraph();
+							distroGraphs[j].loadDataStringFromFile(filename);
+						} catch (Exception ex) { ex.printStackTrace(); }
+					}
+
+					System.out.printf("Thread %d finished: %d-%d\n", tid, startInd, endInd);
+
+				}
+			};
+			tids[i].start();
+		}
+
+		// wait for all threads to finish
+		for (int i = 0; i < numThreads; ++i) {
+			try {
+				tids[i].join();
+			}
+			catch (InterruptedException ex) { ex.printStackTrace(); }
+		}
+	}
+
 	
 	/**
 	 * Iterates over all graphs created and merges them into

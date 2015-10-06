@@ -1,4 +1,5 @@
 *.grph
 OpenJGraph.jar
 JInsect.jar
+Test.java
 *.class

@@ -18,7 +18,7 @@ Copyright (C) Vasileios Charisopoulos, 2015
 
 */
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileFilter;
 
 import dataset.Pair;
 
@@ -47,9 +47,9 @@ public class DataSplitter {
 		
 		// populate the filelist
 		File dir = new File(directory);
-		fileList = dir.listFiles(new FilenameFilter() {
-			public boolean accept(File directory, String fileName) {
-				return fileName.endsWith(".txt");
+		fileList = dir.listFiles(new FileFilter() {
+			public boolean accept(File path) {
+				return path.isFile();
 			}
 		});
 

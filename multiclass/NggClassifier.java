@@ -24,6 +24,7 @@ import gr.demokritos.iit.jinsect.documentModel.representations.*;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
@@ -31,7 +32,6 @@ import dataset.Pair;
 import dataset.ConfusionMatrix;
 
 import java.util.Arrays;
-
 
 /**
  * A simple Java class that performs k-ary classification 
@@ -127,7 +127,6 @@ public class NggClassifier {
 			}
 		});
 		
-		System.out.println(dataDirs.length);
 
 		initLabels(dir);
 		
@@ -255,7 +254,7 @@ public class NggClassifier {
 	}
 	
 	/**
-	 * Perform binary classification using all 
+	 * Perform classification using all 
 	 * the available splits as test sets
 	 * @return an array of confusion matrices
 	 */
@@ -448,9 +447,9 @@ public class NggClassifier {
 		
 		// get the list of files
 		File dirPath = new File(dataDirs[ctg].getAbsolutePath() + "/Test");
-		File[] filenameList = dirPath.listFiles(new FilenameFilter() {
-			public boolean accept(File dirPath, String fileName) {
-				return fileName.endsWith(".txt");
+		File[] filenameList = dirPath.listFiles(new FileFilter() {
+			public boolean accept(File path) {
+				return path.isFile();
 			}
 		});
 		

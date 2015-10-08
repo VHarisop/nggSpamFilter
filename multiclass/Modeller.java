@@ -21,6 +21,7 @@ Copyright (C) Vasileios Charisopoulos, 2015
 import gr.demokritos.iit.jinsect.documentModel.representations.*;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 
 import dataset.*;
@@ -33,14 +34,15 @@ import dataset.*;
  */
 public class Modeller {
 
-	private String[] filenameList;
+	private File[] fileList;
 	private DocumentNGramGraph[] distroGraphs;
 	private DocumentNGramGraph modelGraph;
 	
 	private static boolean useThreads = true;
+	private int numThreads = 4;
 
-	/**
-	 * Static setter to set threading active or not 
+	/** 
+	 * static setter for enabling/disabling threading
 	 */
 	public static void setThreading(boolean setting) {
 		useThreads = setting;
@@ -55,9 +57,9 @@ public class Modeller {
 		File directory = new File(dirPath);
 		
 		// save the directory .corpus files to a filelist
-		filenameList = directory.list(new FilenameFilter() {
-			public boolean accept(File dirPath, String fileName) {
-				return fileName.endsWith(".txt");
+		fileList = directory.listFiles(new FileFilter() {
+			public boolean accept(File path) {
+				return path.isFile();
 			}
 		});
 		
@@ -81,9 +83,9 @@ public class Modeller {
 		
 		File directory = new File(dirPath);
 		
-		filenameList = directory.list(new FilenameFilter() {
-			public boolean accept(File dirPath, String fileName) {
-				return fileName.endsWith(".txt");
+		fileList = directory.listFiles(new FileFilter() {
+			public boolean accept(File path) {
+				return path.isFile();
 			}
 		});
 		
@@ -99,18 +101,18 @@ public class Modeller {
 	 */
 	private void initGraphs(String dirPath, Pair limit) {
 		
-		distroGraphs = new DocumentNGramGraph[filenameList.length - limit.range()];
+		distroGraphs = new DocumentNGramGraph[fileList.length - limit.range()];
 		String filename; int run_index = 0;
 		
 		System.out.println("Reading graphs...");
 		// create an array of N-Gram graphs, one for each corpus
-		for (int index = 0; index < filenameList.length; index++) {
+		for (int index = 0; index < fileList.length; index++) {
 			
 			try {
 				
 				// if not in limits, then use for training
 				if (!limit.includes(index)) {
-					filename = dirPath + "/" + filenameList[index];
+					filename = fileList[index].getAbsolutePath();
 				
 					// create the distribution graphs for the email body
 					distroGraphs[run_index] = new DocumentNGramGraph(); 
@@ -135,15 +137,15 @@ public class Modeller {
 	 */
 	private void initGraphs(String dirPath) {
 		
-		distroGraphs = new DocumentNGramGraph[filenameList.length];
+		distroGraphs = new DocumentNGramGraph[fileList.length];
 			
 		String filename;
 		System.out.print("Reading graphs...");
 		// create an array of N-Gram graphs, one for each corpus
-		for (int index = 0; index < filenameList.length; index++) {
+		for (int index = 0; index < fileList.length; index++) {
 			
 			try {
-				filename = dirPath + "/" + filenameList[index];
+				filename = fileList[index].getAbsolutePath();
 				
 				// create the distribution graphs for the email body
 				distroGraphs[index] = new DocumentNGramGraph(); 
@@ -159,9 +161,8 @@ public class Modeller {
 	}
 
 	private void initGraphsThreaded(String dirPath) {
-		distroGraphs = new DocumentNGramGraph[filenameList.length];
+		distroGraphs = new DocumentNGramGraph[fileList.length];
 
-		final int numThreads = 8;
 		final int sz = (distroGraphs.length / numThreads) + 1;
 		final String dirp = dirPath;
 		Thread[] tids = new Thread[8];
@@ -177,7 +178,7 @@ public class Modeller {
 					
 					for (int j = startInd; j < endInd; j++) {
 						try {   
-							String filename = dirp + "/" + filenameList[j];
+							String filename = fileList[j].getAbsolutePath();
 							distroGraphs[j] = new DocumentNGramGraph();
 							distroGraphs[j].loadDataStringFromFile(filename);
 						} catch (Exception ex) { ex.printStackTrace(); }
@@ -222,7 +223,6 @@ public class Modeller {
 
 	private void updateGraphsThreaded() {
 		
-		final int numThreads = 8;
 		final int sz = (distroGraphs.length / numThreads) + 1;
 		final DocumentNGramGraph[] mdls = new DocumentNGramGraph[numThreads];
 
@@ -287,9 +287,9 @@ public class Modeller {
 	public static DocumentNGramGraph[] extractGraphs(String baseDir) {
 
 		// extract all filenames into a list
-		String[] fileList = (new File(baseDir)).list(new FilenameFilter() {
-			public boolean accept(File dirPath, String fileName) {
-				return fileName.endsWith(".txt");
+		File[] fileList = (new File(baseDir)).listFiles(new FileFilter() {
+			public boolean accept(File path) {
+				return path.isFile();
 			}
 		});
 
@@ -299,7 +299,7 @@ public class Modeller {
 			nggs[i] = new DocumentNGramGraph();
 
 			try {
-				nggs[i].loadDataStringFromFile(baseDir + "/" + fileList[i]);
+				nggs[i].loadDataStringFromFile(fileList[i].getAbsolutePath());
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}

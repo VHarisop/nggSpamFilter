@@ -1,6 +1,6 @@
 import java.lang.Math;
 
-public final class Validation {
+public final class Stats {
 
 	private double[] missRates;
 	private int ndata;
@@ -10,7 +10,7 @@ public final class Validation {
 	 * an array of miss rates 
 	 * @param missRates an array of misclass. rates
 	 */
-	public Validation(double[] missRates) {
+	public Stats(double[] missRates) {
 		this.missRates = missRates;
 		ndata = missRates.length;
 	}

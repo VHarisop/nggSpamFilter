@@ -70,7 +70,41 @@ public class ConfusionMatrix {
 			confMatrix[row][column] = seq[i];
 		}
 	}
+
+	/**
+	 * Calculate the false positive labellings on 
+	 * a category, by summing the appropriate column
+	 * @param classNum the index of the class
+	 * @return the number of false positives
+	 */
+	private int falsePositives(int classNum) {
+		int fp = 0;
+		for (int i = 0; i < numClasses; i++) {
+			if (i == classNum) 
+				continue;
+			fp += confMatrix[i][classNum];
+		}
+
+		return fp;
+	}
 	
+	/**
+	 * Calculate the false negative labellings on 
+	 * a category, by summing the appropriate column
+	 * @param classNum the index of the class
+	 * @return the number of false negatives
+	 */
+	private int falseNegatives(int classNum) {
+		int fn = 0;
+		for (int i = 0; i < numClasses; i++) {
+			if (i == classNum) 
+				continue;
+			fn += confMatrix[classNum][i];
+		}
+
+		return fn;
+	}
+
 	/**
 	 * Returns the precision and recall for a given class
 	 * @param classNum the index of the class
@@ -87,7 +121,37 @@ public class ConfusionMatrix {
 		
 		return new double[] { ((double) hits / precDenom), ((double) hits / recDenom) };
 	}
-	
+
+	/**
+	 * Calculates the precision for a given class
+	 * @param classNum the index of the class
+	 * @return the class precision
+	 */
+	public double precision(int classNum) {
+		int hits = confMatrix[classNum][classNum];
+		int denom = 0;
+		for (int i = 0; i < numClasses; ++i) {
+			denom += confMatrix[i][classNum];
+		}
+
+		return ((double) hits / denom);
+	}
+
+	/**
+	 * Calculates the recall for a given class
+	 * @param classNum the index of the class
+	 * @return the class recall
+	 */
+	public double recall(int classNum) {
+		int hits = confMatrix[classNum][classNum];
+		int denom = 0;
+		for (int i = 0; i < numClasses; ++i) {
+			denom += confMatrix[classNum][i];
+		}
+
+		return ((double) hits / denom);
+	}
+
 	/**
 	 * Returns the F1 score for a given class
 	 * @param classNum the index of the class
@@ -108,7 +172,85 @@ public class ConfusionMatrix {
 		return 2 * precision * recall / (precision + recall);
 	}
 	
+	/**
+	 * Calculates the macro-averaged recall
+	 * @return the macro-averaged recall 
+	 */
+	public double macroAvgRecall() {
+		double sum = 0;
+		for (int i = 0; i < numClasses; ++i) {
+			sum += recall(i);
+		}
+
+		return (sum / numClasses);
+	}
+
+	/**
+	 * Calculates the macro-averaged precision
+	 * @return the macro-averaged precision 
+	 */
+	public double macroAvgPrecision() {
+		double sum = 0;
+		for (int i = 0; i < numClasses; ++i) {
+			sum += precision(i);
+		}
+
+		return (sum / numClasses);
+	}
+
+	/**
+	 * Calculates the macro-averaged F1 score
+	 * @return the F1 score
+	 */
+	public double macroAvgF1Score() {
+		double sum = 0;
+		for (int i = 0; i < numClasses; ++i) {
+			sum += f1Score(i);
+		}
+
+		return (sum / numClasses);
+	}
 	
+	/**
+	 * Calculates the micro-averaged F1 score
+	 * @return the F1 score
+	 */
+	public double microAvgF1Score() {
+		return getF1Score(microAvgPrecision(), microAvgRecall());
+	}
+
+	/** 
+	 * Computes the micro-average recall score
+	 * @return the micro-averaged recall
+	 */
+	public double microAvgRecall() {
+		int sum = 0;
+		int hits = 0;
+		for (int i = 0; i < numClasses; i++) {
+			sum += falseNegatives(i); 
+			hits += confMatrix[i][i];
+		}
+
+		// return (sum(TP_i) / sum(TP_i + FN_i))
+		return (((double) hits) / (sum + hits));
+	}
+
+	/** 
+	 * Computes the micro-average precision score
+	 * @return the micro-averaged precision
+	 */
+	public double microAvgPrecision() {
+		int sum = 0;
+		int hits = 0;
+		for (int i = 0; i < numClasses; i++) {
+			sum += falsePositives(i); 
+			hits += confMatrix[i][i];
+		}
+
+		// return (sum(TP_i) / sum(TP_i + FP_i))
+		return (((double) hits) / (sum + hits));
+	}
+
 	/**
 	 * Returns the accuracy score of the confusion matrix
 	 * @return the total accuracy

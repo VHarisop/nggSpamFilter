@@ -39,7 +39,7 @@ public class Modeller {
 	private DocumentNGramGraph modelGraph;
 	
 	private static boolean useThreads = true;
-	private int numThreads = 4;
+	private int numThreads;
 
 	/** 
 	 * static setter for enabling/disabling threading
@@ -64,6 +64,8 @@ public class Modeller {
 		});
 		
 		if (useThreads) {
+			// only use up to N threads, where N is #available cores
+			numThreads = Runtime.getRuntime().availableProcessors();
 			initGraphsThreaded(dirPath);
 			updateGraphsThreaded();
 		}
@@ -165,7 +167,7 @@ public class Modeller {
 
 		final int sz = (distroGraphs.length / numThreads) + 1;
 		final String dirp = dirPath;
-		Thread[] tids = new Thread[8];
+		Thread[] tids = new Thread[numThreads];
 
 		for (int i = 0; i < numThreads; ++i) {
 			tids[i] = new Thread("Thread-" + i) {

@@ -18,6 +18,8 @@ Copyright (C) Vasileios Charisopoulos, 2015
 
 */
 
+package gr.demokritos.nggClassifier;
+
 import gr.demokritos.iit.jinsect.documentModel.comparators.NGramCachedGraphComparator;
 import gr.demokritos.iit.jinsect.structs.GraphSimilarity;
 import gr.demokritos.iit.jinsect.documentModel.representations.*;
@@ -28,8 +30,7 @@ import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
-import dataset.Pair;
-import dataset.ConfusionMatrix;
+import gr.demokritos.dataTools.*;
 
 import java.util.Arrays;
 

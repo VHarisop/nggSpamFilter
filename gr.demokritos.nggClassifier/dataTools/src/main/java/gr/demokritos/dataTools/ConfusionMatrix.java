@@ -18,13 +18,14 @@ Copyright (C) Vasileios Charisopoulos, 2015
 
 */
 
+package gr.demokritos.dataTools;
+
 /**
  * Represents the confusion matrix for a classification problem 
  * over a number of classes
  * @author VHarisop
  *
  */
-
 public class ConfusionMatrix {
 	
 	private int numClasses;			// number of class labels

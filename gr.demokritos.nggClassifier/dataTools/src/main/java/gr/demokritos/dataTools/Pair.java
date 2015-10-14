@@ -18,6 +18,8 @@ Copyright (C) Vasileios Charisopoulos, 2015
 
 */
 
+package gr.demokritos.dataTools;
+
 import java.util.Objects;
 
 public class Pair {

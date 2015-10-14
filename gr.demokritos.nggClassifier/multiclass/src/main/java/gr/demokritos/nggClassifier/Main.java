@@ -1,8 +1,10 @@
+package gr.demokritos.nggClassifier;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
 
-import dataset.ConfusionMatrix;
+import gr.demokritos.dataTools.ConfusionMatrix;
 
 public class Main {
 	

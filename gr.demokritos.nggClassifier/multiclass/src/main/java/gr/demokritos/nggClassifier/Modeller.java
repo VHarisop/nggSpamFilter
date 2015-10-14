@@ -18,13 +18,15 @@ Copyright (C) Vasileios Charisopoulos, 2015
 
 */
 
+package gr.demokritos.nggClassifier;
+
 import gr.demokritos.iit.jinsect.documentModel.representations.*;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 
-import dataset.*;
+import gr.demokritos.dataTools.*;
 
 /**
  * A simple Java class that creates an N-gram graph representation

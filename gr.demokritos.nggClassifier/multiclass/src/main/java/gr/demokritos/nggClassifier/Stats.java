@@ -1,3 +1,5 @@
+package gr.demokritos.nggClassifier;
+
 import java.lang.Math;
 
 public final class Stats {

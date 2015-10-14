@@ -17,10 +17,13 @@ along with nggSpamFilter.  If not, see <http://www.gnu.org/licenses/>.
 Copyright (C) Vasileios Charisopoulos, 2015
 
 */
+
+package gr.demokritos.nggClassifier;
+
 import java.io.File;
 import java.io.FileFilter;
 
-import dataset.Pair;
+import gr.demokritos.dataTools.Pair;
 
 /**
  * A simple Java class that splits a dataset into 
